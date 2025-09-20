@@ -1,0 +1,38 @@
+{
+  "A": [
+    "Hola, buenos días",
+    "Buen día, ¿en qué puedo ayudar?",
+    "Hola, ¿cómo estás?",
+    "Buenas tardes, un gusto saludarte",
+    "Buenas noches, ¿qué necesitas?",
+    "Hola, ¿en qué te apoyo?",
+    "Saludos, ¿cómo te puedo ayudar?",
+    "Buenos días, bienvenido",
+    "Hola, ¿qué tal?",
+    "Buen día, cuéntame"
+  ],
+  "B": [
+    "Quiero crear un nuevo proyecto",
+    "Necesito agendar una cita",
+    "Deseo cancelar mi suscripción",
+    "Quiero cambiar mi contraseña",
+    "Necesito actualizar mis datos",
+    "Deseo eliminar mi cuenta",
+    "Quiero modificar una reservación",
+    "Necesito soporte técnico",
+    "Quiero solicitar una devolución",
+    "Deseo obtener una cotización"
+  ],
+  "C": [
+    "¿Cuál es el estado de mi pedido?",
+    "No puedo iniciar sesión",
+    "Olvidé mi contraseña",
+    "¿Cuándo llegará mi envío?",
+    "Mi pago fue rechazado",
+    "No recibí el correo de confirmación",
+    "La app se cierra sola",
+    "Tengo un cobro no reconocido",
+    "¿Cómo rastreo mi paquete?",
+    "El producto llegó dañado"
+  ]
+}

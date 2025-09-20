@@ -1,0 +1,40 @@
+{
+  "grupos": {
+    "A": [
+      "Ayuda, por favor.",
+      "Llama a la policía.",
+      "Necesito un médico.",
+      "Estoy herido.",
+      "¿Dónde está el hospital?",
+      "Es una emergencia.",
+      "¿Puedes ayudarme",
+      "Necesito asistencia urgente.",
+      "¿Dónde está la salida",
+      "¡Fuego! ¡Fuego!"
+    ],
+    "B": [
+      "Hola, ¿cómo estás?",
+      "Buenos días.",
+      "Buenas tardes.",
+      "¿Buenas noches",
+      "¿Qué tal?",
+      "Mucho gusto.",
+      "Encantado de conocerte.",
+      "¿Cómo te llamas?",
+      "Me llamo [Nombre].",
+      "Hasta luego."
+    ],
+    "C": [
+      "Gracias.",
+      "Muchas gracias.",
+      "Te lo agradezco.",
+      "Qué amable.",
+      "Estoy muy agradecido.",
+      "Gracias por tu ayuda.",
+      "Cuando quieras.",
+      "No hay problema.",
+      "No pasa nada.",
+      "Es un placer."
+    ]
+  }
+}

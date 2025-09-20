@@ -1,0 +1,14 @@
+frase-similaridad/
+  app/
+    main.py            # endpoints FastAPI
+    matcher.py         # centroides + similitud
+    preprocess.py      # normalización + corrección
+    groups.py          # carga de grupos
+  data/
+    grupos.json        # 3 grupos × 10 frases
+    embeddings.npz     # (opcional) cache
+  tests/
+    golden.jsonl       # (opcional) pares query → (grupo, frase)
+  requirements.txt
+  README.md
+  Dockerfile           # (opcional)
