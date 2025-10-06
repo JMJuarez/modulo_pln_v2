@@ -99,3 +99,62 @@ def preprocess_phrases(phrases: List[str]) -> List[str]:
         Lista de frases preprocesadas
     """
     return [normalize_text(phrase) for phrase in phrases]
+
+
+def spell_out_text(text: str, include_spaces: bool = True) -> List[str]:
+    """
+    Deletrea un texto carácter por carácter.
+
+    Args:
+        text: Texto a deletrear
+        include_spaces: Si True, incluye espacios en el deletreo
+
+    Returns:
+        Lista con cada carácter/palabra deletreada
+    """
+    if not text:
+        return []
+
+    result = []
+
+    for char in text:
+        if char == ' ':
+            if include_spaces:
+                result.append("espacio")
+        elif char.isalpha():
+            result.append(char.upper())
+        elif char.isdigit():
+            result.append(char)
+        else:
+            # Para caracteres especiales, usar su nombre
+            special_chars = {
+                '.': 'punto',
+                ',': 'coma',
+                ';': 'punto y coma',
+                ':': 'dos puntos',
+                '!': 'exclamación',
+                '?': 'interrogación',
+                '-': 'guión',
+                '_': 'guión bajo',
+                '@': 'arroba',
+                '#': 'numeral',
+                '$': 'dólar',
+                '%': 'porcentaje',
+                '&': 'ampersand',
+                '/': 'barra',
+                '\\': 'barra invertida',
+                '(': 'paréntesis abierto',
+                ')': 'paréntesis cerrado',
+                '[': 'corchete abierto',
+                ']': 'corchete cerrado',
+                '{': 'llave abierta',
+                '}': 'llave cerrada',
+                '+': 'más',
+                '=': 'igual',
+                '*': 'asterisco',
+                '"': 'comillas',
+                "'": 'comilla simple',
+            }
+            result.append(special_chars.get(char, f"carácter especial: {char}"))
+
+    return result

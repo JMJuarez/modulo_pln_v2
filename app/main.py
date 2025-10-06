@@ -4,8 +4,9 @@ from typing import Dict, List
 import logging
 import uvicorn
 
-from .matcher import PhraseMatcher
+from .matcher_improved import ImprovedPhraseMatcher as PhraseMatcher
 from .groups import get_all_phrases
+from .preprocess import spell_out_text
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -42,15 +43,33 @@ class StatusResponse(BaseModel):
     total_frases: int
 
 
+class SpellOutRequest(BaseModel):
+    """Modelo para la solicitud de deletreo."""
+    texto: str
+    incluir_espacios: bool = True
+
+
+class SpellOutResponse(BaseModel):
+    """Modelo para la respuesta de deletreo."""
+    texto_original: str
+    deletreo: List[str]
+    total_caracteres: int
+
+
 @app.on_event("startup")
 async def startup_event():
-    """Inicializa el matcher al arrancar la aplicación."""
+    """Inicializa el matcher mejorado al arrancar la aplicación."""
     global matcher
     try:
-        logger.info("Inicializando la aplicación...")
-        matcher = PhraseMatcher()
+        logger.info("Inicializando la aplicación con matcher mejorado...")
+        # Usar modelo balanceado optimizado para español con todas las mejoras
+        matcher = PhraseMatcher(
+            model_type="multilingual_balanced",  # Mejor modelo para español
+            use_reranking=True,  # Re-ranking en dos fases
+            use_synonym_expansion=True  # Expansión de sinónimos
+        )
         matcher.initialize()
-        logger.info("Aplicación inicializada correctamente")
+        logger.info("Aplicación inicializada correctamente con matcher mejorado")
     except Exception as e:
         logger.error(f"Error al inicializar la aplicación: {e}")
         raise
@@ -151,6 +170,38 @@ async def obtener_frases_grupo(grupo: str):
         raise
     except Exception as e:
         logger.error(f"Error al obtener frases del grupo {grupo}: {e}")
+        raise HTTPException(status_code=500, detail="Error interno del servidor")
+
+
+@app.post("/deletreo", response_model=SpellOutResponse)
+async def deletrear_texto(request: SpellOutRequest):
+    """
+    Deletrea el texto proporcionado carácter por carácter.
+
+    Args:
+        request: Solicitud con el texto a deletrear
+
+    Returns:
+        Respuesta con el deletreo del texto
+    """
+    if not request.texto:
+        raise HTTPException(status_code=400, detail="El texto no puede estar vacío")
+
+    try:
+        logger.info(f"Deletreando texto: {request.texto}")
+        deletreo = spell_out_text(request.texto, request.incluir_espacios)
+
+        response = SpellOutResponse(
+            texto_original=request.texto,
+            deletreo=deletreo,
+            total_caracteres=len(deletreo)
+        )
+
+        logger.info(f"Deletreo completado: {len(deletreo)} caracteres")
+        return response
+
+    except Exception as e:
+        logger.error(f"Error al deletrear texto: {e}")
         raise HTTPException(status_code=500, detail="Error interno del servidor")
 
 
