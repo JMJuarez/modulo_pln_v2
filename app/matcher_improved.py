@@ -33,6 +33,14 @@ class ImprovedPhraseMatcher:
         "C": 0.75   # Problemas: más estricto
     }
 
+    # Threshold para activar deletreo automático (muy cerca de GROUP_THRESHOLDS)
+    # Solo acepta coincidencias muy claras, cualquier cosa dudosa va a deletreo
+    SPELL_OUT_THRESHOLDS = {
+        "A": 0.68,  # Muy cerca de 0.70 - solo 2% margen
+        "B": 0.62,  # Muy cerca de 0.65 - solo 3% margen
+        "C": 0.72   # Muy cerca de 0.75 - solo 3% margen
+    }
+
     # Sinónimos para expansión de query
     SYNONYMS = {
         "ayuda": ["asistencia", "soporte", "apoyo"],
@@ -315,12 +323,13 @@ class ImprovedPhraseMatcher:
     def search_similar_phrase(self, query: str) -> Dict:
         """
         Busca la frase más similar usando estrategia mejorada.
+        Si la similitud está por debajo del umbral de deletreo, activa el modo deletreo.
 
         Args:
             query: Consulta de entrada
 
         Returns:
-            Diccionario con resultado de la búsqueda
+            Diccionario con resultado de la búsqueda y deletreo si aplica
         """
         if self.use_reranking:
             grupo, frase, similarity = self.find_most_similar_phrase_reranked(query)
@@ -329,11 +338,33 @@ class ImprovedPhraseMatcher:
             best_group = self.find_best_groups(query, top_k=1)[0][0]
             grupo, frase, similarity = self.find_most_similar_phrase(query, best_group)
 
+        # Verificar si se debe activar el modo deletreo
+        spell_out_threshold = self.SPELL_OUT_THRESHOLDS.get(grupo, 0.60)
+        should_spell_out = similarity < spell_out_threshold
+
+        # Si se activa el deletreo, solo retornar el deletreo
+        if should_spell_out:
+            from .preprocess import spell_out_text
+            deletreo_list = spell_out_text(query, include_spaces=True)
+            return {
+                "query": query,
+                "grupo": None,
+                "frase_similar": "frase no reconocida",
+                "similitud": round(similarity, 4),
+                "deletreo_activado": True,
+                "deletreo": deletreo_list,
+                "total_caracteres": len(deletreo_list)
+            }
+
+        # Si no se activa deletreo, retornar respuesta normal
         return {
             "query": query,
             "grupo": grupo,
             "frase_similar": frase,
-            "similitud": round(similarity, 4)
+            "similitud": round(similarity, 4),
+            "deletreo_activado": False,
+            "deletreo": None,
+            "total_caracteres": None
         }
 
     def find_most_similar_phrase(self, query: str, group: Optional[str] = None) -> Tuple[str, str, float]:
