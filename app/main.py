@@ -31,9 +31,12 @@ class QueryRequest(BaseModel):
 class QueryResponse(BaseModel):
     """Modelo para la respuesta de búsqueda."""
     query: str
-    grupo: str
+    grupo: str | None
     frase_similar: str
     similitud: float
+    deletreo_activado: bool
+    deletreo: List[str] | None = None
+    total_caracteres: int | None = None
 
 
 class StatusResponse(BaseModel):
@@ -119,10 +122,17 @@ async def buscar_frase_similar(request: QueryRequest):
             query=resultado["query"],
             grupo=resultado["grupo"],
             frase_similar=resultado["frase_similar"],
-            similitud=resultado["similitud"]
+            similitud=resultado["similitud"],
+            deletreo_activado=resultado["deletreo_activado"],
+            deletreo=resultado.get("deletreo"),
+            total_caracteres=resultado.get("total_caracteres")
         )
 
-        logger.info(f"Resultado: {response.grupo} - {response.similitud}")
+        if resultado["deletreo_activado"]:
+            logger.info(f"Resultado: {response.grupo} - {response.similitud} (DELETREO ACTIVADO)")
+        else:
+            logger.info(f"Resultado: {response.grupo} - {response.similitud}")
+
         return response
 
     except Exception as e:
