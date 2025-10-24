@@ -33,12 +33,12 @@ class ImprovedPhraseMatcher:
         "C": 0.75   # Problemas: más estricto
     }
 
-    # Threshold para activar deletreo automático
-    # Umbral uniforme del 70% para todos los grupos
+    # Threshold para activar deletreo automático (muy cerca de GROUP_THRESHOLDS)
+    # Solo acepta coincidencias muy claras, cualquier cosa dudosa va a deletreo
     SPELL_OUT_THRESHOLDS = {
-        "A": 0.70,
-        "B": 0.70,
-        "C": 0.70
+        "A": 0.68,  # Muy cerca de 0.70 - solo 2% margen
+        "B": 0.62,  # Muy cerca de 0.65 - solo 3% margen
+        "C": 0.72   # Muy cerca de 0.75 - solo 3% margen
     }
 
     # Sinónimos para expansión de query
@@ -342,38 +342,14 @@ class ImprovedPhraseMatcher:
         spell_out_threshold = self.SPELL_OUT_THRESHOLDS.get(grupo, 0.60)
         should_spell_out = similarity < spell_out_threshold
 
-        # VALIDACIÓN ADICIONAL: Penalizar matches con gran diferencia de longitud
-        # Esto previene que palabras como "Ivan" hagan match con "Sí"
-        query_words = query.strip().split()
-        frase_words = frase.strip().split()
-
-        # Si la query es de una sola palabra y la frase también
-        if len(query_words) == 1 and len(frase_words) == 1:
-            query_len = len(query_words[0])
-            frase_len = len(frase_words[0])
-
-            # Si la diferencia de longitud es > 1 carácter, penalizar
-            length_diff = abs(query_len - frase_len)
-            if length_diff > 1:
-                # Reducir similitud significativamente
-                # Penalización más agresiva: 25% por cada carácter de diferencia
-                similarity_penalty = 0.25 * length_diff
-                similarity = max(0.0, similarity - similarity_penalty)
-                self.logger.info(f"Penalización por longitud aplicada: query='{query}' ({query_len}) vs frase='{frase}' ({frase_len}), diff={length_diff}, penalty={similarity_penalty:.2f}, nueva_similitud={similarity:.2f}")
-
-                # Recalcular si se debe activar deletreo con la nueva similitud
-                should_spell_out = similarity < spell_out_threshold
-
         # Si se activa el deletreo, solo retornar el deletreo
         if should_spell_out:
             from .preprocess import spell_out_text
             deletreo_list = spell_out_text(query, include_spaces=True)
-            # Formatear deletreo como string para mostrar en frase_similar
-            deletreo_str = " ".join(deletreo_list)
             return {
                 "query": query,
                 "grupo": None,
-                "frase_similar": deletreo_str,  # Ahora muestra el deletreo en lugar de "frase no reconocida"
+                "frase_similar": "frase no reconocida",
                 "similitud": round(similarity, 4),
                 "deletreo_activado": True,
                 "deletreo": deletreo_list,
